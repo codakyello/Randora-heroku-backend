@@ -1,0 +1,34 @@
+<%- include("head.ejs") %>
+<!-- START MAIN CONTENT AREA -->
+<span class="preheader">Your subscription is about to expire.</span>
+
+<tr>
+  <td class="wrapper">
+    <img style="height: 20px; margin-top: 20px;" src="https://kjvwlfbptuucvdjisomn.supabase.co/storage/v1/object/public/Payup%20Bucket/email-logo.png" alt="PayUp Logo"/>
+
+    <h2 class="title">Subscription Reminder</h2>
+
+    <div class="content">
+      <p style="margin-bottom: 10px;">Hi <%= userName %> 👋,</p>
+      <p>Your subscription for <%= organisationName %> will expire in <%= daysRemaining %> days.</p>
+      <p style="margin-bottom: 10px;">To ensure uninterrupted access to all features, please renew your subscription before it expires.</p>
+
+      <!-- Call to action -->
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+        <tr>
+          <td align="left">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+              <tr>
+                <td>
+                  <a href="<%= renewalLink %>" target="_blank" style="background-color: #007BFF; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px;">Renew Now</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </td>
+</tr>
+
+<%- include("footer.ejs") %>

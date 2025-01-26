@@ -1,0 +1,24 @@
+<%- include("head.ejs") %>
+<!-- START MAIN CONTENT AREA -->
+<span class="preheader">Your invite was declined</span>
+
+<tr>
+  <td class="wrapper">
+    <img style="height:20px; margin-top:20px;" src="" alt="Randora Logo" />
+
+    <h2 class="title">Your invite was declined</h2>
+
+    <div class="content">
+      <p style="margin-bottom: 10px">Hi <%= userName %> 👋,</p>
+      <p>We regret to inform you that <strong><%= receiverName %></strong> has declined your invitation to join your organization.</p>
+      
+      <p>If you believe this was a mistake, you can reach out to them for clarification or send a new invitation.</p>
+      
+      <p>Thank you for using Randora for your organizational needs!</p>
+
+      <p>Best regards,</p>
+      <p>The Randora Team</p>
+    </div>
+    <%- include("footer.ejs") %>
+  </td>
+</tr>

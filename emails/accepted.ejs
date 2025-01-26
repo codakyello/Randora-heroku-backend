@@ -1,0 +1,24 @@
+<%- include("head.ejs") %>
+<!-- START MAIN CONTENT AREA -->
+<span class="preheader">Your invite has been accepted!</span>
+
+<tr>
+  <td class="wrapper">
+    <img style="height:20px; margin-top:20px;" src="" alt="PayUp Logo" />
+
+    <h2 class="title">Your invite has been accepted!</h2>
+
+    <div class="content">
+      <p style="margin-bottom: 10px">Hi <%= userName %> 👋,</p>
+      <p>We are excited to inform you that <strong><%= receiverName %></strong> has accepted your invitation to join your organization.</p>
+      
+      <p>They are now part of your organization and can collaborate effectively with your team.</p>
+      
+      <p>Thank you for using Randora for your organizational needs!</p>
+
+      <p>Best regards,</p>
+      <p>The Randora Team</p>
+    </div>
+    <%- include("footer.ejs") %>
+  </td>
+</tr>

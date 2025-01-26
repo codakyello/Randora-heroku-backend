@@ -1,0 +1,24 @@
+<%- include("head.ejs") %>
+<!-- START MAIN CONTENT AREA -->
+<span class="preheader">You have been removed from an organization</span>
+
+<tr>
+  <td class="wrapper">
+    <img style="height:20px; margin-top:20px;" src="" alt="Randora Logo" />
+
+    <h2 class="title">Organisation Membership Update</h2>
+
+    <div class="content">
+      <p style="margin-bottom: 10px">Hi <%= userName %> 👋,</p>
+      <p>This email is to inform you that <%= ownerName %> has removed you from their organisation <strong><%= organisationName %></strong></p>
+      
+      <p>You will no longer have access to the organisation's resources and collaborations.</p>
+      
+      <p>If you believe this was done in error, please contact the organization owner directly.</p>
+
+      <p>Best regards,</p>
+      <p>The Randora Team</p>
+    </div>
+    <%- include("footer.ejs") %>
+  </td>
+</tr>
