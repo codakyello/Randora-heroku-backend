@@ -40,7 +40,7 @@ const isDatabaseConnected = () => {
 };
 
 // Cron job to run every day and check for expired subscriptions
-cron.schedule("15 16 * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
   // Runs every day at midnight
   console.log("Random cron job running every 5 minutes");
   try {
