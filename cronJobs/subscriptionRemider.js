@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 // Reminder 7 days before subscription expiry
 
 // change to every midnight
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("0 6 * * *", async () => {
   // Runs every day at midnight
   try {
     // Check if mongoose is connected before proceeding
