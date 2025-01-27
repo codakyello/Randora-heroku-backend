@@ -40,7 +40,7 @@ const isDatabaseConnected = () => {
 };
 
 // Cron job to run every day and check for expired subscriptions
-cron.schedule("0 6 * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
   // Runs every day at midnight
   console.log("Random cron job running every 5 minutes");
   try {
@@ -57,7 +57,7 @@ cron.schedule("0 6 * * *", async () => {
       // Remove the organisationId from all users linked to the expired organisation
       await removeOrganisationFromUsers(organisation._id);
       console.log(
-        `Organisation ${organisation._id} expired and org users removed.`
+        `Organisation ${organisation._id} expired and users' orgId removed.`
       );
     }
   } catch (err) {
