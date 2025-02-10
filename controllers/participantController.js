@@ -40,7 +40,10 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
     }
 
     if (event.csvUploaded) {
-      throw new AppError("CSV has already been uploaded for this event.", 400);
+      throw new AppError(
+        "Participants have already been uploaded for this event.",
+        400
+      );
     }
 
     // Get existing participants for the event

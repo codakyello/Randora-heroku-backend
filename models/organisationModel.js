@@ -66,6 +66,8 @@ organisationSchema.pre(/^find/, function (next) {
   next();
 });
 
-const Organisation = mongoose.model("Organisation", organisationSchema);
+const Organisation =
+  mongoose.models.Organisation ||
+  mongoose.model("Organisation", organisationSchema);
 
 module.exports = Organisation;
