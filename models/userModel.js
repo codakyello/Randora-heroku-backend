@@ -94,7 +94,6 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-
     accountType: {
       type: String,
       enum: {

@@ -4,6 +4,7 @@ const csv = require("csv-parser");
 const Participant = require("../models/ParticipantsModel");
 const Event = require("../models/EventModel");
 const AppError = require("../utils/appError");
+const { ROW_LIMIT } = require("../utils/const");
 
 module.exports.getAllParticipants = catchAsync(async (req, res) => {
   res.status(500).json({
@@ -69,8 +70,8 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
         );
     });
 
-    if (participants.length > 50000) {
-      throw new AppError("The uploaded file exceeds the 50,000-row limit.");
+    if (participants.length > ROW_LIMIT) {
+      throw new AppError(`The uploaded file exceeds the ${ROW_LIMIT} limit.`);
     }
 
     if (participants.length === 0) {
