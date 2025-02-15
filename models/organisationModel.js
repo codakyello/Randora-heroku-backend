@@ -10,18 +10,19 @@ const organisationSchema = new mongoose.Schema({
     ref: "User", // The user who created the organization (i.e., the admin/owner)
     required: true,
   },
-  // start by giving them free 7 days trial
+  // No more free trial
   subscriptionExpiryDate: {
     type: Date,
-    default: () => new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+    default: null,
   },
 
   subscriptionStatus: {
     type: String,
-    enum: ["active", "expired"],
+    enum: ["active", "expired", "inactive"],
     required: true,
-    default: "active",
+    default: "inactive",
   },
+
   collaborators: [
     {
       user: {

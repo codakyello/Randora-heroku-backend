@@ -24,6 +24,8 @@ const upload = multer({
 router.post(
   "/upload",
   upload.single("file"),
+  authenticate,
+  authorize("user"),
   participantController.uploadParticipants
 );
 

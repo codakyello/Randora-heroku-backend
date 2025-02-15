@@ -168,12 +168,23 @@ class Email {
     }
   }
 
-  async sendSubscriptionExpiry(organisationName) {
+  async sendOrgSubscriptionExpiry(organisationName) {
     try {
       await this.send({
         file: "subscriptionExpiry",
         subject: "Subscription Expired",
         body: { organisationName },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async sendUserSubscriptionExpiry(organisationName) {
+    try {
+      await this.send({
+        file: "subscriptionExpiry",
+        subject: "Subscription Expired",
       });
     } catch (error) {
       console.log(error);

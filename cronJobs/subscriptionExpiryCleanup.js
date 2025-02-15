@@ -27,7 +27,7 @@ const removeOrganisationFromUsers = async (organisationId) => {
     await organisation.save();
     const owner = await User.findById(organisation.owner);
     if (owner) {
-      await new Email(owner).sendSubscriptionExpiry(organisation.name);
+      await new Email(owner).sendOrgSubscriptionExpiry(organisation.name);
     }
   } catch (err) {
     console.error("Error removing organisationId from users:", err);
@@ -53,13 +53,22 @@ cron.schedule("0 0 * * *", async () => {
       subscriptionExpiryDate: { $lt: new Date() }, // Expired subscriptions
       subscriptionStatus: "active",
     });
-    for (const organisation of expiredOrganisations) {
+
+    const expiredUsers = await User.find({
+      subscriptionExpiryDate: { $lt: new Date() }, // Expired subscriptions
+      subscriptionStatus: "active",
+    });
+
+    expiredUsers.forEach(async (user) => {
+      user.subscriptionStatus = "expired";
+      await user.save();
+      await new Email(user).sendUserSubscriptionExpiry();
+    });
+
+    expiredOrganisations.forEach(async (organisation) => {
       // Remove the organisationId from all users linked to the expired organisation
       await removeOrganisationFromUsers(organisation._id);
-      console.log(
-        `Organisation ${organisation._id} expired and users' orgId removed.`
-      );
-    }
+    });
   } catch (err) {
     console.error("Error checking for expired subscriptions:", err);
   }

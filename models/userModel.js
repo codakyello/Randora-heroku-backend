@@ -33,8 +33,8 @@ const userSchema = new mongoose.Schema(
     plan: {
       type: String,
       enum: {
-        values: ["free", "pro", "enterprise"],
-        message: "Plan is either: free, premium or enterprise ",
+        values: ["free", "individual", "organisation"],
+        message: "Plan is either: free, individual or organisation ",
       },
       default: "free",
     },
@@ -50,6 +50,14 @@ const userSchema = new mongoose.Schema(
     subscriptionExpiryDate: {
       type: Date,
     },
+
+    subscriptionStatus: {
+      type: String,
+      enum: ["active", "expired", "inactive"],
+      required: true,
+      default: "inactive",
+    },
+
     logo: String,
     image: String,
     password: {

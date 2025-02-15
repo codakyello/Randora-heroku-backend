@@ -277,8 +277,6 @@ exports.userSignUp = catchAsync(async (req, res) => {
     const organisation = new Organisation({
       owner: user._id,
       name: req.body.organisationName,
-      subscriptionStatus: "active",
-      // subscriptionExpiryDate: new Date(Date.now() * 1000 * 60 * 60 * 24 * 7),
     });
 
     await organisation.save();

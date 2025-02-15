@@ -4,8 +4,8 @@ const Event = require("../models/EventModel");
 const { catchAsync, sendSuccessResponseData } = require("../utils/helpers");
 const APIFEATURES = require("../utils/apiFeatures");
 const AppError = require("../utils/appError");
-const Organisation = require("../models/OrganisationModel");
 const User = require("../models/userModel");
+const Organisation = require("../models/organisationModel");
 
 module.exports.getAllEvents = catchAsync(async (req, res) => {
   const apiFeatures = new APIFEATURES(Event, req.query)
@@ -56,64 +56,6 @@ module.exports.getEvent = catchAsync(async (req, res) => {
   sendSuccessResponseData(res, "event", event);
 });
 
-//create event
-// module.exports.createEvent = catchAsync(async (req, res) => {
-//   const { name } = req.body;
-
-//   // Check if the user is part of an organisation if yes, save the organisation id
-//   const organisationId = req.user.organisationId;
-
-//   let subscriptionStatus;
-
-//   if (organisationId) {
-//     const organisation = await Organisation.findById(organisationId);
-//     subscriptionStatus = organisation?.subscriptionStatus; // Handle null values safely
-//   } else {
-//     const user = await User.findById(firstPrize.userId);
-//     subscriptionStatus = user?.isSubscribed; // Handle null values safely
-//   }
-
-//   // if organisation save the organisation id, creator id,
-//   // if not organisation save with user id
-
-//   // Check if an event with the same name already exists for the user
-
-//   // Case-insensitive match
-//   const filter = organisationId
-//     ? { name: { $regex: new RegExp(`^${name}$`, "i") }, organisationId }
-//     : { name: { $regex: new RegExp(`^${name}$`, "i") }, userId: req.user.id };
-
-//   const existingEvent = await Event.findOne(filter);
-//   if (existingEvent) {
-//     throw new AppError("An event with this name already exists.", 400);
-//   }
-
-//   // Create the new event
-//   const newEvent = await Event.create({
-//     ...req.body,
-//     ...(organisationId
-//       ? { organisationId, creator: req.user.id }
-//       : { userId: req.user.id, creator: req.user.id }),
-//   });
-
-//   const filter = organisationId
-//     ? { organisationId }
-//     : { userId: { $exists: true } };
-
-//   const events = await Event.find(filter);
-
-//   if (
-//     (!subscriptionStatus || subscriptionStatus === "expired") &&
-//     events.length > 10
-//   )
-//     throw new AppError(
-//       "Your current plan cannot create more than 10 events.",
-//       402
-//     );
-
-//   sendSuccessResponseData(res, "event", newEvent);
-// });
-
 module.exports.createEvent = catchAsync(async (req, res) => {
   const { name } = req.body;
 
@@ -138,13 +80,10 @@ module.exports.createEvent = catchAsync(async (req, res) => {
 
   // Check if the subscription allows creating more events
   if (
-    (!subscriptionStatus || subscriptionStatus === "expired") &&
+    (!subscriptionStatus || subscriptionStatus !== "active") &&
     events.length >= 10
   ) {
-    throw new AppError(
-      "You have reached your event creation limit with your current plan. Please upgrade your plan to create more events.",
-      402
-    );
+    throw new AppError("Please upgrade your plan to create more events.", 402);
   }
 
   // Check if an event with the same name already exists for the user/org

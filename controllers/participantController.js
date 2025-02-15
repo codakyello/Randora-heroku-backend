@@ -5,6 +5,7 @@ const Participant = require("../models/ParticipantsModel");
 const Event = require("../models/EventModel");
 const AppError = require("../utils/appError");
 const { ROW_LIMIT } = require("../utils/const");
+const Organisation = require("../models/organisationModel");
 
 module.exports.getAllParticipants = catchAsync(async (req, res) => {
   res.status(500).json({
@@ -23,6 +24,19 @@ module.exports.getParticipant = catchAsync(async (req, res) => {
 module.exports.uploadParticipants = catchAsync(async (req, res) => {
   const csvBuffer = req.file?.buffer; // Access the uploaded CSV file as a buffer
   const eventId = req.body.eventId;
+
+  // check for the status of the account
+  const user = req.user;
+
+  let subscriptionStatus = user.subscriptionStatus;
+
+  if (user.acccountType === "organisation") {
+    const organisation = await Organisation.findById(user.organisationId);
+    subscriptionStatus = organisation.subscriptionStatus;
+  }
+
+  if (subscriptionStatus !== "active")
+    throw new AppError("Please upgrade your plan to upload participants", 400);
 
   try {
     if (!csvBuffer) throw new AppError("No CSV File uploaded", 400);
