@@ -1,6 +1,5 @@
 const Event = require("../models/EventModel");
 const Participant = require("../models/ParticipantsModel");
-const Organisation = require("../models/OrganisationModel");
 const Prize = require("../models/PrizesModel");
 const APIFEATURES = require("../utils/apiFeatures");
 const AppError = require("../utils/appError");
@@ -8,6 +7,7 @@ const AppError = require("../utils/appError");
 const { sendSuccessResponseData, catchAsync } = require("../utils/helpers");
 const supabase = require("../supabase");
 const User = require("../models/userModel");
+const Organisation = require("../models/organisationModel");
 
 module.exports.getAllPrizes = catchAsync(async (req, res) => {
   const apiFeatures = APIFEATURES(Prize, req.query)

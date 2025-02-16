@@ -14,6 +14,7 @@ const participantRoutes = require("./routes/participantRoute");
 const eventRoutes = require("./routes/eventRoutes");
 const prizeRoutes = require("./routes/prizeRoute");
 const organisationRoutes = require("./routes/organisationRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 
 const app = express();
 
@@ -54,6 +55,8 @@ app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/prizes", prizeRoutes);
 
 app.use("/api/v1/organisations", organisationRoutes);
+
+app.use("/api/v1/transactions", transactionRoutes);
 
 app.get("/", (_req, res) => {
   res.send("<h1>Deployment Check</h1>");

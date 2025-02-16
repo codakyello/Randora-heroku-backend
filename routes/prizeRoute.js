@@ -1,7 +1,7 @@
 const express = require("express");
+const router = express.Router();
 const prizeController = require("../controllers/prizeController");
 const { authenticate, authorize } = require("../controllers/authController");
-const router = express.Router();
 
 router
   .route("/")
