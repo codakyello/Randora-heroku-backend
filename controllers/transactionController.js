@@ -2,6 +2,7 @@ const Organisation = require("../models/organisationModel");
 const Transaction = require("../models/transactionModel");
 const User = require("../models/userModel");
 const APIFEATURES = require("../utils/apiFeatures");
+const AppError = require("../utils/appError");
 const { catchAsync, sendSuccessResponseData } = require("../utils/helpers");
 
 module.exports.getAllTransaction = catchAsync(async (req, res) => {
@@ -144,54 +145,93 @@ module.exports.webhook = catchAsync(async (req, res) => {
   return res.status(200).json();
 });
 
-// const handleOrganisationSubscription = async (organisationId) => {
-//   try {
-//     // Fetch the organisation and ensure it exists
-//     const organisation = await Organisation.findById(organisationId).populate(
-//       "collaborators"
-//     );
-//     if (!organisation) {
-//       throw new Error(`Organisation with ID ${organisationId} not found`);
-//     }
+module.exports.webhook = catchAsync(async (req, res, next) => {
+  console.log("Inside webhook");
+  const { reference, eventType } = req.body;
 
-//     const owner = await User.findById(organisation.owner);
-//     if (!owner) throw new AppError("Owner not found", 404);
+  console.log(`Reference: ${reference}, Event Type: ${eventType}`);
 
-//     // Update the subscription status to "active"
-//     organisation.subscriptionStatus = "active";
-//     await organisation.save();
+  // Look for the transactionId in the transaction model
+  const transaction = await Transaction.findOne({ reference });
 
-//     console.log(`Organisation ${organisationId} subscription activated`);
+  if (!transaction) {
+    console.error(`Transaction with reference ${reference} not found.`);
+    throw new AppError("Transaction not found", 404);
+  }
 
-//     // Add the organisation back to collaborators' accounts
-//     const collaborators = organisation.collaborators;
-//     const updatePromises = collaborators?.map(async (collaborator) => {
-//       await User.updateOne(
-//         { _id: collaborator.user._id },
-//         {
-//           $addToSet: {
-//             accounts: {
-//               organisation: organisationId,
-//               organisationImage: owner.id,
-//             },
-//           }, // Ensures no duplicates
-//           $set: { organisationId: organisationId },
-//         }
-//       );
-//       console.log(
-//         `Added organisation ${organisationId} to user ${collaborator.user.email}'s accounts`
-//       );
-//     });
+  // Check if the payment was successful
+  if (eventType === "payment.session.succeeded") {
+    transaction.status = "success";
+    await transaction.save();
 
-//     await Promise.all(updatePromises);
+    // Get the owner of the transaction
+    const owner = await User.findById(transaction.userId);
 
-//     console.log(
-//       `Organisation ${organisationId} added back to all collaborators' accounts`
-//     );
-//   } catch (err) {
-//     console.error(
-//       "Error adding organisation back to collaborators' accounts:",
-//       err
-//     );
-//   }
-// };
+    if (!owner) {
+      console.error("User not found for transaction:", reference);
+      throw new AppError("User not found", 404);
+    }
+
+    if (owner.accountType === "organisation") {
+      // Renew organisation account
+      const organisation = await Organisation.findById(
+        owner.organisationId
+      ).populate("collaborators");
+
+      if (!organisation) {
+        console.error(`Organisation with ID ${owner.organisationId} not found`);
+        throw new AppError("Organisation not found", 404);
+      }
+
+      // Update the subscription status to "active"
+      organisation.subscriptionStatus = "active";
+      const currentDate = new Date();
+      organisation.subscriptionExpiryDate = new Date(
+        currentDate.setMonth(currentDate.getMonth() + 1)
+      );
+
+      await organisation.save();
+
+      // Add the organisation back to collaborators' accounts
+      const collaborators = organisation.collaborators || [];
+      console.log("Collaborators:", collaborators);
+
+      const updatePromises = collaborators.map(async (collaborator) => {
+        await User.updateOne(
+          { _id: collaborator.user._id },
+          {
+            $addToSet: {
+              accounts: {
+                organisation: owner.organisationId,
+                organisationImage: owner.id,
+              },
+            }, // Ensures no duplicates
+            $set: { organisationId: owner.organisationId },
+          }
+        );
+        console.log(
+          `Added organisation ${owner.organisationId} to ${collaborator.user.email}'s accounts`
+        );
+      });
+
+      await Promise.all(updatePromises);
+    } else {
+      // Renew individual account
+      owner.subscriptionStatus = "active";
+      const currentDate = new Date();
+      owner.subscriptionExpiryDate = new Date(
+        currentDate.setMonth(currentDate.getMonth() + 1)
+      );
+
+      await owner.save();
+    }
+  } else if (eventType === "payment.session.failed") {
+    transaction.status = "failed";
+    await transaction.save();
+    console.log(`Transaction ${reference} failed`);
+  } else {
+    console.warn(`Unhandled event type: ${eventType}`);
+  }
+
+  return res.status(200).json({ status: "success" });
+});
