@@ -34,4 +34,6 @@ router
     transactionController.deleteTransaction
   );
 
+router.post("/webhook", transactionController.webhook);
+
 module.exports = router;
