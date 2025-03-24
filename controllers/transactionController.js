@@ -149,3 +149,83 @@ module.exports.webhook = catchAsync(async (req, res) => {
     return res.status(200).json({ message: "Webhook error logged" }); // Still return 200
   }
 });
+
+module.exports.processTransaction = catchAsync(async (req, res) => {
+  const { reference, eventType } = req.body;
+
+  console.log(reference, eventType);
+
+  // Find the transaction
+  const transaction = await Transaction.findOne({ reference });
+
+  if (!transaction) {
+    throw new AppError("Transaction not found", 404);
+  }
+
+  if (eventType === "payment.session.succeded") {
+    transaction.status = "success";
+
+    // Get the transaction owner
+    const owner = await User.findById(transaction.userId);
+
+    if (!owner) {
+      console.error(`User with ID ${transaction.userId} not found`);
+      throw new AppError("User not found", 404);
+    }
+
+    const currentDate = new Date();
+    owner.subscriptionStatus = "active";
+    owner.subscriptionExpiryDate = new Date(
+      currentDate.setMonth(currentDate.getMonth() + 1)
+    );
+
+    if (owner.accountType === "organisation") {
+      const organisation = await Organisation.findById(
+        owner.organisationId
+      ).populate("collaborators");
+      organisation.subscriptionExpiryDate = new Date(
+        currentDate.setMonth(currentDate.getMonth() + 1)
+      );
+
+      if (!organisation) {
+        throw new AppError("Organisation not found", 404);
+      }
+
+      organisation.subscriptionStatus = "active";
+      await organisation.save();
+
+      // Update collaborators' accounts
+      const updatePromises = organisation.collaborators?.map(
+        async (collaborator) => {
+          await User.updateOne(
+            { _id: collaborator.user._id },
+            {
+              $addToSet: {
+                accounts: {
+                  organisation: owner.organisationId,
+                  organisationImage: owner.id,
+                },
+              },
+              $set: { organisationId: owner.organisationId },
+            }
+          );
+        }
+      );
+
+      await Promise.all(updatePromises);
+
+      return res
+        .status(200)
+        .json({ message: "Payment successfully processed" });
+    }
+
+    await owner.save();
+  } else if (eventType === "payment.session.failed") {
+    transaction.status = "failed";
+    await transaction.save();
+
+    return res.status(400).json({ message: "Payment could not be processed" });
+  }
+
+  // return res.status(200).json({ message: "Webhook processed" }); // Always return 200
+});
