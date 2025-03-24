@@ -36,6 +36,6 @@ router
 
 router.post("/webhook", transactionController.webhook);
 
-router.post("/processTransaction", transactionController.processTransaction);
+router.post("/process", transactionController.processTransaction);
 
 module.exports = router;
