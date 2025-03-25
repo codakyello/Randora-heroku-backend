@@ -222,10 +222,11 @@ module.exports.processTransaction = catchAsync(async (req, res) => {
     await owner.save();
   } else if (eventType === "payment.session.failed") {
     transaction.status = "failed";
-    await transaction.save();
 
     return res.status(400).json({ message: "Payment could not be processed" });
   }
+
+  await transaction.save();
 
   // return res.status(200).json({ message: "Webhook processed" }); // Always return 200
 });
