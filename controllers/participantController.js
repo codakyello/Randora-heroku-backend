@@ -28,23 +28,26 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
   // check for the status of the account
   const user = req.user;
 
+  console.log("This is user", user);
+
   // differentiate between organisation and individual account
 
   let subscriptionStatus = user.subscriptionStatus;
 
   if (user.organisationId) {
-    subscriptionStatus = Organisation.findById(
-      user.organisationId
-    ).subscriptionStatus;
-  }
-
-  if (user.acccountType === "organisation") {
     const organisation = await Organisation.findById(user.organisationId);
     subscriptionStatus = organisation.subscriptionStatus;
   }
 
+  console.log(subscriptionStatus);
+
+  // if (user.acccountType === "organisation") {
+  //   const organisation = await Organisation.findById(user.organisationId);
+  //   subscriptionStatus = organisation.subscriptionStatus;
+  // }
+
   if (subscriptionStatus !== "active")
-    throw new AppError("Please upgrade your plan to upload participants", 400);
+    throw new AppError("Please upgrade your plan to use this feature", 400);
 
   try {
     if (!csvBuffer) throw new AppError("No CSV File uploaded", 400);
