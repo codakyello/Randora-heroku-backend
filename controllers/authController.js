@@ -233,18 +233,15 @@ exports.userLogin = catchAsync(async (req, res) => {
   if (!user || !(await user.correctPassword(password, user.password)))
     throw new AppError("Incorrect email or password", 401);
 
-  const otp = await user.generateOtp();
-  console.log(otp);
+  // const otp = await user.generateOtp();
+  // console.log(otp);
 
   await user.save({ validateBeforeSave: false });
 
-  await new Email(user).sendOTP(otp);
+  // await new Email(user).sendOTP(otp);
 
-  console.log("saved otp");
-  res.status(200).json({
-    status: "success",
-    message: "A one time otp has been sent to your email",
-  });
+  // console.log("saved otp");
+  await createSendToken(user, res);
 });
 
 exports.userSignUp = catchAsync(async (req, res) => {
@@ -267,7 +264,6 @@ exports.userSignUp = catchAsync(async (req, res) => {
 
   // Generate OTP for the new user
   const otp = await user.generateOtp();
-  console.log(otp);
 
   // Handle organization account type
   if (req.body.accountType === "organisation") {
