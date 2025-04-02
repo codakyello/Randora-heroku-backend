@@ -39,8 +39,6 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
     subscriptionStatus = organisation.subscriptionStatus;
   }
 
-  console.log(subscriptionStatus);
-
   // if (user.acccountType === "organisation") {
   //   const organisation = await Organisation.findById(user.organisationId);
   //   subscriptionStatus = organisation.subscriptionStatus;
