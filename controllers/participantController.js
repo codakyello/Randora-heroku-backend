@@ -22,13 +22,12 @@ module.exports.getParticipant = catchAsync(async (req, res) => {
 });
 
 module.exports.uploadParticipants = catchAsync(async (req, res) => {
+  console.log("uploadParticipants called");
   const csvBuffer = req.file?.buffer; // Access the uploaded CSV file as a buffer
   const eventId = req.body.eventId;
 
   // check for the status of the account
   const user = req.user;
-
-  console.log("This is user", user);
 
   // differentiate between organisation and individual account
 
@@ -98,7 +97,7 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
 
     if (participants.length > ROW_LIMIT) {
       throw new AppError(
-        `The uploaded file exceeds the ${ROW_LIMIT} row limit.`
+        `You cannot upload more than ${ROW_LIMIT} rows at once. Please split your CSV file into smaller files.`
       );
     }
 
@@ -141,23 +140,22 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
         throw new AppError(`Name at row ${rowNumber} is missing`, 400);
       }
 
-      // console.log("the participant", participant);
+      // Process participant data with previously uploaded participant
+      // existingParticipants.forEach((participant) => {
+      //   if (participant.ticketNumber === ticketNumber) {
+      //     throw new AppError(
+      //       `The ticket number: ${ticketNumber} at row number ${rowNumber} already exists for this event`,
+      //       400
+      //     );
+      //   }
 
-      existingParticipants.forEach((participant) => {
-        if (participant.ticketNumber === ticketNumber) {
-          throw new AppError(
-            `The ticket number: ${ticketNumber} at row number ${rowNumber} already exists for this event`,
-            400
-          );
-        }
-
-        if (participant.email?.toLowerCase() === email) {
-          throw new AppError(
-            `The participant with email ${email} at row number ${rowNumber} already exists for this event`,
-            400
-          );
-        }
-      });
+      //   // if (participant.email?.toLowerCase() === email) {
+      //   //   throw new AppError(
+      //   //     `The participant with email ${email} at row number ${rowNumber} already exists for this event`,
+      //   //     400
+      //   //   );
+      //   // }
+      // });
 
       if (hasEmail) {
         const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -166,29 +164,29 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
         }
       }
 
-      for (let i = index + 1; i < participants.length; i++) {
-        if (hasEmail && participants[i].email.toLowerCase() === email) {
-          throw new AppError(
-            `Duplicate email address: ${email} at row ${rowNumber} and at row ${
-              i + 2
-            }.`,
-            400
-          );
-        }
+      // for (let i = index + 1; i < participants.length; i++) {
+      //   if (hasEmail && participants[i].email.toLowerCase() === email) {
+      //     throw new AppError(
+      //       `Duplicate email address: ${email} at row ${rowNumber} and at row ${
+      //         i + 2
+      //       }.`,
+      //       400
+      //     );
+      //   }
 
-        if (
-          hasTicketNumber &&
-          participants[i].ticketnumber === ticketNumber
-          // Number(participants[i].ticketnumber) === ticketNumber
-        ) {
-          throw new AppError(
-            `Duplicate ticket number: Ticket Number: ${ticketNumber}, at row ${rowNumber} and at row ${
-              i + 2
-            }.`,
-            400
-          );
-        }
-      }
+      //   if (
+      //     hasTicketNumber &&
+      //     participants[i].ticketnumber === ticketNumber
+      //     // Number(participants[i].ticketnumber) === ticketNumber
+      //   ) {
+      //     throw new AppError(
+      //       `Duplicate ticket number: Ticket Number: ${ticketNumber}, at row ${rowNumber} and at row ${
+      //         i + 2
+      //       }.`,
+      //       400
+      //     );
+      //   }
+      // }
 
       return {
         name,
@@ -206,6 +204,8 @@ module.exports.uploadParticipants = catchAsync(async (req, res) => {
       await Event.updateParticipantsCount(eventId);
 
       sendSuccessResponseData(res, "participants", processedParticipants);
+
+      console.log("uploaded completed");
     } catch (err) {
       await Participant.deleteMany({ eventId });
       throw err;

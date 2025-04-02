@@ -236,10 +236,11 @@ exports.userLogin = catchAsync(async (req, res) => {
   const otp = await user.generateOtp();
   console.log(otp);
 
-  await new Email(user).sendOTP(otp);
-
   await user.save({ validateBeforeSave: false });
 
+  await new Email(user).sendOTP(otp);
+
+  console.log("saved otp");
   res.status(200).json({
     status: "success",
     message: "A one time otp has been sent to your email",
