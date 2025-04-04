@@ -14,15 +14,16 @@ const catchAsync = (fn) => {
 };
 
 // Function to send success response data
-const sendSuccessResponseData = (res, dataName, data, totalCount) => {
-  const responseData = {};
-  responseData[dataName] = data;
+const sendSuccessResponseData = (res, dataName, data, totalCount, message) => {
+  // const responseData = {};
+  // responseData[dataName] = data;
 
   res.status(200).json({
     ...(totalCount !== undefined && totalCount !== null ? { totalCount } : {}),
     status: "success",
+    message,
     results: data?.length,
-    data: responseData,
+    data: { [dataName]: data },
   });
 };
 

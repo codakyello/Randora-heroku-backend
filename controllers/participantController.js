@@ -271,7 +271,9 @@ module.exports.createParticipant = catchAsync(async (req, res) => {
 module.exports.updateParticipant = catchAsync(async (req, res) => {
   const { ticketNumber, isWinner, email } = req.body;
 
-  const participant = await Participant.findById(req.params.id);
+  console.log(req.body);
+
+  let participant = await Participant.findById(req.params.id);
   if (!participant) {
     throw new AppError("No participant found with that ID.", 404);
   }
@@ -293,21 +295,22 @@ module.exports.updateParticipant = catchAsync(async (req, res) => {
       );
     }
 
-    participant.isWinner = isWinner;
-    await participant.save();
+    // participant.isWinner = isWinner;
+    // participant.prize = prize;
+    // await participant.save();
 
-    return sendSuccessResponseData(res, "participant", participant);
+    // return sendSuccessResponseData(res, "participant", participant);
   }
 
   // Handle other updates (e.g., ticketNumber)
-  if (event.status !== "inactive") {
+  if (!isWinner && event.status !== "inactive") {
     throw new AppError(
       "Participants can only be updated when the event is inactive.",
       400
     );
   }
 
-  if (event.emailSent) {
+  if (!isWinner && event.emailSent) {
     throw new AppError(
       "Updates are not allowed as the notification email has already been sent.",
       400
@@ -343,13 +346,16 @@ module.exports.updateParticipant = catchAsync(async (req, res) => {
     }
   }
 
-  Object.keys(req.body).forEach((key) => {
-    participant[key] = req.body[key];
+  Object.entries(req.body).forEach(([key, value]) => {
+    participant[key] = value;
   });
 
   // Save updated participant
   await participant.save();
 
+  participant = await Participant.findById(participant._id);
+
+  console.log(participant);
   sendSuccessResponseData(res, "participant", participant);
 });
 

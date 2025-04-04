@@ -37,6 +37,7 @@ module.exports.assignPrize = catchAsync(async (req, res) => {
   const prizeId = req.params.id;
   const { participantId } = req.body;
 
+  console.log("This is prizeId", prizeId);
   // Find the prize
   const prize = await Prize.findById(prizeId);
   if (!prize) {
@@ -81,7 +82,10 @@ module.exports.assignPrize = catchAsync(async (req, res) => {
     throw new AppError("Participant not found", 404);
   }
 
-  sendSuccessResponseData(res, "Participant updated successfully", participant);
+  console.log("This is participant after updates", participant);
+
+  console.log("finished updating participant");
+  sendSuccessResponseData(res, "participant", participant);
 });
 
 module.exports.createPrizes = catchAsync(async (req, res) => {
