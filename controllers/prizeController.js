@@ -92,7 +92,13 @@ module.exports.createPrizes = catchAsync(async (req, res) => {
   const Replicate = require("replicate");
   const replicate = new Replicate();
 
-  const prizes = req.body;
+  // prizes is an array of objects
+  const prizes = req.body.map((prize) => {
+    return {
+      ...prize,
+      totalQuantity: prize?.quantity,
+    };
+  });
   const eventId = prizes.at(0).eventId;
 
   const firstPrize = prizes.at(0);
@@ -157,7 +163,8 @@ module.exports.createPrizes = catchAsync(async (req, res) => {
           ],
         });
       } catch (err) {
-        throw new AppError("Invalid Prize name", 400);
+        console.error("Error fetching existing prize image:", err);
+        // throw new AppError("Invalid Prize name", 400);
       }
 
       if (existingPrizeImage) {

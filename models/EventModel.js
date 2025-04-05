@@ -64,12 +64,14 @@ eventSchema.statics.updateParticipantsCount = async function (eventId) {
 };
 
 eventSchema.statics.updatePrizeCount = async function (eventId) {
-  let count = 0;
   const prizes = await Prize.find({ eventId });
 
-  prizes.forEach((prize) => (count += prize.quantity));
+  const prizeCount = prizes.reduce(
+    (acc, prize) => (acc += prize.totalQuantity),
+    0
+  );
 
-  await this.findByIdAndUpdate(eventId, { prizeCount: count });
+  await this.findByIdAndUpdate(eventId, { prizeCount });
 };
 
 eventSchema.statics.updateRemainingPrizeCount = async function (eventId) {

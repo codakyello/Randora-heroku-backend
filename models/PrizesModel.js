@@ -15,6 +15,12 @@ const prizeSchema = new mongoose.Schema({
     min: 0,
     default: 1,
   },
+  totalQuantity: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0,
+  },
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Event",
